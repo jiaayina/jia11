@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I am an orchid</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/addons/p5.sound.min.js"></script>
+  
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+  
+
+  <style>
+    /* 确保所有元素都使用Arial */
+    * {
+      font-family: Arial, sans-serif;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    
+    /* 音效状态显示 */
+    #sound-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #4CAF50;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-family: Arial, sans-serif;
+      z-index: 2000;
+      display: none;
+    }
+    
+    /* 初始化提示容器-阻止背景交互 */
+    #init-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
+      z-index: 3000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: all; /* 确保阻止背景点击 */
+    }
+    
+    #init-overlay.hidden {
+      display: none;
+      pointer-events: none;
+    }
+    
+    /* 点击框-只有这个区域可以点击，去掉白色边框 */
+    #init-hint {
+      background-color: rgba(20, 20, 20, 0.95);
+      border: none; /* 去掉边框 */
+      padding: 50px 80px;
+      border-radius: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      font-family: Arial, sans-serif;
+    }
+    
+    #init-hint:hover {
+      background-color: rgba(40, 40, 40, 0.95);
+      transform: scale(1.02);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+    }
+    
+    /* 标题-居中，Arial字体，粗体 */
+    #main-title {
+      font-family: Arial, sans-serif;
+      font-size: 48px;
+      font-weight: bold; /* 粗体 */
+      color: #ffffff;
+      margin: 0 0 30px 0;
+      letter-spacing: 2px;
+    }
+    
+    /* 提示文字1-比标题小，Arial字体，正常粗细 */
+    #click-instruction {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      font-weight: normal; /* 正常粗细 */
+      color: #cccccc;
+      margin: 15px 0 10px 0;
+    }
+    
+    /* 提示文字2-最小，Arial字体，细体 */
+    #sound-instruction {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 300; /* 细体 */
+      color: #999999;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- 音效加载状态 -->
+  <div id="sound-status">🎵 Sound Ready</div>
+  
+  <!-- 初始化遮罩层-阻止背景交互 -->
+  <div id="init-overlay">
+    <!-- 点击框-只有点击这个框内才能开始 -->
+    <div id="init-hint">
+      <h1 id="main-title">I am an orchid.</h1>
+      <p id="click-instruction">Click here to start</p>
+      <p id="sound-instruction">Sound effects will be enabled</p>
+    </div>
+  </div>
+  
+  <!-- 主脚本 -->
+  <script src="sketch.js"></script>
+  
+  <!-- 页面初始化脚本 -->
+  <script>
+    // 只在点击框内时启动
+    document.getElementById('init-hint').addEventListener('click', function(event) {
+      // 阻止事件冒泡到overlay
+      event.stopPropagation();
+      
+      // 隐藏整个遮罩层
+      document.getElementById('init-overlay').classList.add('hidden');
+      
+      // 解锁音频上下文
+      if (typeof getAudioContext === 'function') {
+        getAudioContext().resume();
+      }
+      
+      // 显示音效状态
+      setTimeout(() => {
+        document.getElementById('sound-status').style.display = 'block';
+      }, 1000);
+      
+      console.log('🎵 Audio context unlocked, artwork started');
+    });
+    
+    // 阻止点击遮罩层其他区域
+    document.getElementById('init-overlay').addEventListener('click', function(event) {
+      // 如果点击的是overlay本身（不是hint框），不做任何事
+      if (event.target === this) {
+        console.log('Please click on the box to start');
+      }
+    });
+    
+    // 键盘快捷键：隐藏音效状态
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 's' || e.key === 'S') {
+        const soundStatus = document.getElementById('sound-status');
+        soundStatus.style.display = soundStatus.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+  </script>
+</body>
+</html>
